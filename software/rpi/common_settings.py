@@ -20,6 +20,9 @@ ASSISTANT_OAUTH_SCOPE = (
 )
 PUBSUB_OAUTH_SCOPE = 'https://www.googleapis.com/auth/pubsub'
 ASSISTANT_CREDENTIALS_FILENAME = 'assistant_credentials.json'
+CREDENTIALS_FILE_PATH = '/home/pi/.config/google-oauthlib-tool/credentials.json'
+DEVICE_MODEL_ID = 'mixologist-7d277-mixologist-v1'
+PROJECT_ID = 'mixologist-7d277'
 DEFAULT_GRPC_DEADLINE = 60 * 3 + 5
 DEFAULT_AUDIO_SAMPLE_RATE = 16000
 DEFAULT_AUDIO_SAMPLE_WIDTH = 2
