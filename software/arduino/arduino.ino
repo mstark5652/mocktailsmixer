@@ -22,7 +22,7 @@
 //   NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
 //   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
 //   NEO_RGBW    Pixels are wired for RGBW bitstream (NeoPixel RGBW products)
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(24, NEO_PIN, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(216, NEO_PIN, NEO_GRB + NEO_KHZ800);
 
 // IMPORTANT: To reduce NeoPixel burnout risk, add 1000 uF capacitor across
 // pixel power leads, add 300 - 500 Ohm resistor on first pixel's data input
@@ -36,6 +36,7 @@ char cmd[MAX_CMD_SIZE];
 uint16_t index = 0;
 
 /*
+ * conversational ux
  * o = off
  * h = hotword
  * l = listening
@@ -45,6 +46,44 @@ uint16_t index = 0;
 char _cuxState = 'o';
 int16_t _iterNum = 0;
 uint8_t _cuxUp = 1;
+
+/*
+ * bottle ux
+ * o = off
+ * r = responding
+ */
+ 
+char _b0uxState = 'o';
+int16_t _b0iterNum = 0;
+uint8_t _b0uxUp = 1;
+
+char _b1uxState = 'o';
+int16_t _b1iterNum = 0;
+uint8_t _b1uxUp = 1;
+
+char _b2uxState = 'o';
+int16_t _b2iterNum = 0;
+uint8_t _b2uxUp = 1;
+
+char _b3uxState = 'o';
+int16_t _b3iterNum = 0;
+uint8_t _b3uxUp = 1;
+
+char _b4uxState = 'o';
+int16_t _b4iterNum = 0;
+uint8_t _b4uxUp = 1;
+
+char _b5uxState = 'o';
+int16_t _b5iterNum = 0;
+uint8_t _b5uxUp = 1;
+
+char _b6uxState = 'o';
+int16_t _b6iterNum = 0;
+uint8_t _b6uxUp = 1;
+
+char _b7uxState = 'o';
+int16_t _b7iterNum = 0;
+uint8_t _b7uxUp = 1;
 
 // in order of bottles
 uint8_t _relayPins[] = { 2, 3, 4, 5, 7, 8, 9, 10 };
@@ -84,23 +123,30 @@ void loop() {
 
       // was command valid? default to yes
       uint8_t cmdValid = 1;
+      char cmd0 = cmd[0];
+      char cmd1 = cmd[1];
+      char cmd2 = cmd[2];
 
       // bottle commands
-      if (cmd[0] == 'b') {
+      if (cmd0 == 'b') {
 
         // parse command
-        char temp[2] = { cmd[1], '\0' };
+        char temp[2] = { cmd1, '\0' };
         uint8_t bottleNum = atoi(temp);
 
         // change state based on action
-        switch (cmd[2]) {
+        switch (cmd2) {
           case 'r':
             // turn on relay
             digitalWrite(_relayPins[bottleNum], HIGH);
+            cmd0 = cmd1;
+            cmd1 = 'r';
             break;
           case 'l':
             // turn off relay
             digitalWrite(_relayPins[bottleNum], LOW);
+            cmd0 = cmd1;
+            cmd1 = 'o';
             break;
           default:
             cmdValid = 0;
@@ -109,10 +155,42 @@ void loop() {
       }
 
       // ui commands
-      else if  (cmd[0] == 'x') {
+      if  (cmd0 == 'x') {
         // todo: check for valid cmd[1]
-        _cuxState = cmd[1];
+        _cuxState = cmd1;
         _iterNum = 0;
+      }
+      else if  (cmd0 == '0') {
+        _b0uxState = cmd1;
+        _b0iterNum = 0;
+      }
+      else if  (cmd0 == '1') {
+        _b1uxState = cmd1;
+        _b1iterNum = 0;
+      }
+      else if  (cmd0 == '2') {
+        _b2uxState = cmd1;
+        _b2iterNum = 0;
+      }
+      else if  (cmd0 == '3') {
+        _b3uxState = cmd1;
+        _b3iterNum = 0;
+      }
+      else if  (cmd0 == '4') {
+        _b4uxState = cmd1;
+        _b4iterNum = 0;
+      }
+      else if  (cmd0 == '5') {
+        _b5uxState = cmd1;
+        _b5iterNum = 0;
+      }
+      else if  (cmd0 == '6') {
+        _b6uxState = cmd1;
+        _b6iterNum = 0;
+      }
+      else if  (cmd0 == '7') {
+        _b7uxState = cmd1;
+        _b7iterNum = 0;
       }
 
       // bad command
@@ -153,6 +231,86 @@ void loop() {
       break;
   }
 
+  // do b0 state
+  switch (_b0uxState) {
+    case 'o':
+      _b0iterNum += b0uxOff(_b0iterNum);
+      break;
+    case 'r':
+      _b0iterNum += b0uxResponding(_b0iterNum);
+      break;
+  }
+
+  // do b1 state
+  switch (_b1uxState) {
+    case 'o':
+      _b1iterNum += b1uxOff(_b1iterNum);
+      break;
+    case 'r':
+      _b1iterNum += b1uxResponding(_b1iterNum);
+      break;
+  }
+
+  // do b2 state
+  switch (_b2uxState) {
+    case 'o':
+      _b2iterNum += b2uxOff(_b2iterNum);
+      break;
+    case 'r':
+      _b2iterNum += b2uxResponding(_b2iterNum);
+      break;
+  }
+
+  // do b3 state
+  switch (_b3uxState) {
+    case 'o':
+      _b3iterNum += b3uxOff(_b3iterNum);
+      break;
+    case 'r':
+      _b3iterNum += b3uxResponding(_b3iterNum);
+      break;
+  }
+
+  // do b4 state
+  switch (_b4uxState) {
+    case 'o':
+      _b4iterNum += b4uxOff(_b4iterNum);
+      break;
+    case 'r':
+      _b4iterNum += b4uxResponding(_b4iterNum);
+      break;
+  }
+
+  // do b5 state
+  switch (_b5uxState) {
+    case 'o':
+      _b5iterNum += b5uxOff(_b5iterNum);
+      break;
+    case 'r':
+      _b5iterNum += b5uxResponding(_b5iterNum);
+      break;
+  }
+
+  // do b6 state
+  switch (_b6uxState) {
+    case 'o':
+      _b6iterNum += b6uxOff(_b6iterNum);
+      break;
+    case 'r':
+      _b6iterNum += b6uxResponding(_b6iterNum);
+      break;
+  }
+
+  // do b7 state
+  switch (_b7uxState) {
+    case 'o':
+      _b7iterNum += b7uxOff(_b7iterNum);
+      break;
+    case 'r':
+      _b7iterNum += b7uxResponding(_b7iterNum);
+      break;
+  }
+  
   delay(10);
 }
 
@@ -168,6 +326,160 @@ int16_t cuxOff(int16_t iterNum) {
 
   // turn all pixels off
   for (uint8_t px = 0; px < 24; px++) {
+    strip.setPixelColor(px, 0, 0, 0);
+  }
+  strip.show();
+
+  return 1;
+}
+
+/*
+ * b0 UX off
+ */
+int16_t b0uxOff(int16_t iterNum) {
+
+  // done
+  if (iterNum > 0) {
+    return 0;
+  }
+
+  // turn all pixels off
+  for (uint8_t px = 24; px < 48; px++) {
+    strip.setPixelColor(px, 0, 0, 0);
+  }
+  strip.show();
+
+  return 1;
+}
+
+/*
+ * b1 UX off
+ */
+int16_t b1uxOff(int16_t iterNum) {
+
+  // done
+  if (iterNum > 0) {
+    return 0;
+  }
+
+  // turn all pixels off
+  for (uint8_t px = 48; px < 72; px++) {
+    strip.setPixelColor(px, 0, 0, 0);
+  }
+  strip.show();
+
+  return 1;
+}
+
+/*
+ * b2 UX off
+ */
+int16_t b2uxOff(int16_t iterNum) {
+
+  // done
+  if (iterNum > 0) {
+    return 0;
+  }
+
+  // turn all pixels off
+  for (uint8_t px = 72; px < 96; px++) {
+    strip.setPixelColor(px, 0, 0, 0);
+  }
+  strip.show();
+
+  return 1;
+}
+
+/*
+ * b3 UX off
+ */
+int16_t b3uxOff(int16_t iterNum) {
+
+  // done
+  if (iterNum > 0) {
+    return 0;
+  }
+
+  // turn all pixels off
+  for (uint8_t px = 96; px < 120; px++) {
+    strip.setPixelColor(px, 0, 0, 0);
+  }
+  strip.show();
+
+  return 1;
+}
+
+
+/*
+ * b4 UX off
+ */
+int16_t b4uxOff(int16_t iterNum) {
+
+  // done
+  if (iterNum > 0) {
+    return 0;
+  }
+
+  // turn all pixels off
+  for (uint8_t px = 120; px < 144; px++) {
+    strip.setPixelColor(px, 0, 0, 0);
+  }
+  strip.show();
+
+  return 1;
+}
+
+
+/*
+ * b5 UX off
+ */
+int16_t b5uxOff(int16_t iterNum) {
+
+  // done
+  if (iterNum > 0) {
+    return 0;
+  }
+
+  // turn all pixels off
+  for (uint8_t px = 144; px < 168; px++) {
+    strip.setPixelColor(px, 0, 0, 0);
+  }
+  strip.show();
+
+  return 1;
+}
+
+/*
+ * b6 UX off
+ */
+int16_t b6uxOff(int16_t iterNum) {
+
+  // done
+  if (iterNum > 0) {
+    return 0;
+  }
+
+  // turn all pixels off
+  for (uint8_t px = 168; px < 192; px++) {
+    strip.setPixelColor(px, 0, 0, 0);
+  }
+  strip.show();
+
+  return 1;
+}
+
+/*
+ * b7 UX off
+ */
+int16_t b7uxOff(int16_t iterNum) {
+
+  // done
+  if (iterNum > 0) {
+    return 0;
+  }
+
+  // turn all pixels off
+  for (uint8_t px = 192; px < 216; px++) {
     strip.setPixelColor(px, 0, 0, 0);
   }
   strip.show();
@@ -290,6 +602,222 @@ int16_t cuxResponding(int16_t iterNum) {
   if (_cuxUp == 1) {
     return 2;
   } else if (_cuxUp == 0) {
+    return -2;
+  }
+  return 0;
+}
+
+/*
+ * b0 UX responding
+ */
+int16_t b0uxResponding(int16_t iterNum) {
+
+  // set proper pixel color
+  for (uint8_t px = 24; px < 48; px++) {
+    strip.setPixelColor(px, BASE_BRIGHTNESS + iterNum, BASE_BRIGHTNESS + iterNum, BASE_BRIGHTNESS + iterNum);
+  }
+  strip.show();
+
+  // determine if a direction change is necessary
+  if (iterNum >= (RAISED_BRIGHTNESS - BASE_BRIGHTNESS)) {
+    _b0uxUp = 0;
+  } else if (iterNum <= 0) {
+    _b0uxUp = 1;
+  }
+
+  // return value based on direction
+  if (_b0uxUp == 1) {
+    return 2;
+  } else if (_b0uxUp == 0) {
+    return -2;
+  }
+  return 0;
+}
+
+/*
+ * b1 UX responding
+ */
+int16_t b1uxResponding(int16_t iterNum) {
+
+  // set proper pixel color
+  for (uint8_t px = 48; px < 72; px++) {
+    strip.setPixelColor(px, BASE_BRIGHTNESS + iterNum, BASE_BRIGHTNESS + iterNum, BASE_BRIGHTNESS + iterNum);
+  }
+  strip.show();
+
+  // determine if a direction change is necessary
+  if (iterNum >= (RAISED_BRIGHTNESS - BASE_BRIGHTNESS)) {
+    _b1uxUp = 0;
+  } else if (iterNum <= 0) {
+    _b1uxUp = 1;
+  }
+
+  // return value based on direction
+  if (_b1uxUp == 1) {
+    return 2;
+  } else if (_b1uxUp == 0) {
+    return -2;
+  }
+  return 0;
+}
+
+/*
+ * b2 UX responding
+ */
+int16_t b2uxResponding(int16_t iterNum) {
+
+  // set proper pixel color
+  for (uint8_t px = 72; px < 96; px++) {
+    strip.setPixelColor(px, BASE_BRIGHTNESS + iterNum, BASE_BRIGHTNESS + iterNum, BASE_BRIGHTNESS + iterNum);
+  }
+  strip.show();
+
+  // determine if a direction change is necessary
+  if (iterNum >= (RAISED_BRIGHTNESS - BASE_BRIGHTNESS)) {
+    _b2uxUp = 0;
+  } else if (iterNum <= 0) {
+    _b2uxUp = 1;
+  }
+
+  // return value based on direction
+  if (_b2uxUp == 1) {
+    return 2;
+  } else if (_b2uxUp == 0) {
+    return -2;
+  }
+  return 0;
+}
+
+/*
+ * b3 UX responding
+ */
+int16_t b3uxResponding(int16_t iterNum) {
+
+  // set proper pixel color
+  for (uint8_t px = 96; px < 120; px++) {
+    strip.setPixelColor(px, BASE_BRIGHTNESS + iterNum, BASE_BRIGHTNESS + iterNum, BASE_BRIGHTNESS + iterNum);
+  }
+  strip.show();
+
+  // determine if a direction change is necessary
+  if (iterNum >= (RAISED_BRIGHTNESS - BASE_BRIGHTNESS)) {
+    _b3uxUp = 0;
+  } else if (iterNum <= 0) {
+    _b3uxUp = 1;
+  }
+
+  // return value based on direction
+  if (_b3uxUp == 1) {
+    return 2;
+  } else if (_b3uxUp == 0) {
+    return -2;
+  }
+  return 0;
+}
+
+/*
+ * b4 UX responding
+ */
+int16_t b4uxResponding(int16_t iterNum) {
+
+  // set proper pixel color
+  for (uint8_t px = 120; px < 144; px++) {
+    strip.setPixelColor(px, BASE_BRIGHTNESS + iterNum, BASE_BRIGHTNESS + iterNum, BASE_BRIGHTNESS + iterNum);
+  }
+  strip.show();
+
+  // determine if a direction change is necessary
+  if (iterNum >= (RAISED_BRIGHTNESS - BASE_BRIGHTNESS)) {
+    _b4uxUp = 0;
+  } else if (iterNum <= 0) {
+    _b4uxUp = 1;
+  }
+
+  // return value based on direction
+  if (_b4uxUp == 1) {
+    return 2;
+  } else if (_b4uxUp == 0) {
+    return -2;
+  }
+  return 0;
+}
+
+/*
+ * b5 UX responding
+ */
+int16_t b5uxResponding(int16_t iterNum) {
+
+  // set proper pixel color
+  for (uint8_t px = 144; px < 168; px++) {
+    strip.setPixelColor(px, BASE_BRIGHTNESS + iterNum, BASE_BRIGHTNESS + iterNum, BASE_BRIGHTNESS + iterNum);
+  }
+  strip.show();
+
+  // determine if a direction change is necessary
+  if (iterNum >= (RAISED_BRIGHTNESS - BASE_BRIGHTNESS)) {
+    _b5uxUp = 0;
+  } else if (iterNum <= 0) {
+    _b5uxUp = 1;
+  }
+
+  // return value based on direction
+  if (_b5uxUp == 1) {
+    return 2;
+  } else if (_b5uxUp == 0) {
+    return -2;
+  }
+  return 0;
+}
+
+/*
+ * b6 UX responding
+ */
+int16_t b6uxResponding(int16_t iterNum) {
+
+  // set proper pixel color
+  for (uint8_t px = 168; px < 192; px++) {
+    strip.setPixelColor(px, BASE_BRIGHTNESS + iterNum, BASE_BRIGHTNESS + iterNum, BASE_BRIGHTNESS + iterNum);
+  }
+  strip.show();
+
+  // determine if a direction change is necessary
+  if (iterNum >= (RAISED_BRIGHTNESS - BASE_BRIGHTNESS)) {
+    _b6uxUp = 0;
+  } else if (iterNum <= 0) {
+    _b6uxUp = 1;
+  }
+
+  // return value based on direction
+  if (_b6uxUp == 1) {
+    return 2;
+  } else if (_b6uxUp == 0) {
+    return -2;
+  }
+  return 0;
+}
+
+/*
+ * b7 UX responding
+ */
+int16_t b7uxResponding(int16_t iterNum) {
+
+  // set proper pixel color
+  for (uint8_t px = 192; px < 216; px++) {
+    strip.setPixelColor(px, BASE_BRIGHTNESS + iterNum, BASE_BRIGHTNESS + iterNum, BASE_BRIGHTNESS + iterNum);
+  }
+  strip.show();
+
+  // determine if a direction change is necessary
+  if (iterNum >= (RAISED_BRIGHTNESS - BASE_BRIGHTNESS)) {
+    _b7uxUp = 0;
+  } else if (iterNum <= 0) {
+    _b7uxUp = 1;
+  }
+
+  // return value based on direction
+  if (_b7uxUp == 1) {
+    return 2;
+  } else if (_b7uxUp == 0) {
     return -2;
   }
   return 0;
