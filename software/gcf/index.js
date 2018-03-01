@@ -4,7 +4,7 @@ var request = require('request');
 var pubsub = require('@google-cloud/pubsub');
 var ApiAiAssistant = require('actions-on-google').ApiAiAssistant;
 
-var pubsubClient = pubsub({ projectId: 'your-google-project-id' });
+var pubsubClient = pubsub({ projectId: 'mixologist-7d277' });
 var topicName = 'MocktailsMixerMessages';
 
 exports.webhook = function(req, res) {
