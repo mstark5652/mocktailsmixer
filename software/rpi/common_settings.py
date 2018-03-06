@@ -29,3 +29,31 @@ DEFAULT_AUDIO_SAMPLE_WIDTH = 2
 DEFAULT_AUDIO_ITER_SIZE = 3200
 DEFAULT_AUDIO_DEVICE_BLOCK_SIZE = 6400
 DEFAULT_AUDIO_DEVICE_FLUSH_SIZE = 25600
+
+
+
+# network={
+# ssid="YOUR_NETWORK_NAME"
+# psk="YOUR_NETWORK_PASSWORD"
+# proto=RSN
+# key_mgmt=WPA-PSK
+# pairwise=CCMP
+# auth_alg=OPEN
+# priority=1
+# }
+
+# ex:
+# {
+#     "ssid": "<Network Name>",
+#     "psk": "<Password123>",
+#     "id_str": "<Network Id>",
+#     "priority": "1"
+# }
+
+# must have unique id_str for lookup
+wifi_config = [
+
+    
+]
+
+

@@ -9,38 +9,12 @@
 
 import subprocess
 import traceback
-import os, sys
+import os, sys, time
 
 WPA_FILE_PATH = "/etc/wpa_supplicant/wpa_supplicant.conf"
 
-# network={
-# ssid="YOUR_NETWORK_NAME"
-# psk="YOUR_NETWORK_PASSWORD"
-# proto=RSN
-# key_mgmt=WPA-PSK
-# pairwise=CCMP
-# auth_alg=OPEN
-# }
+from common_settings import wifi_config
 
-INTOUCH_GUEST_NETWORK = {
-    "ssid": "Intouch Guest",
-    "psk": "Int14GuestNet",
-    "id_str": "IntouchGuestWifi"
-}
-
-
-JACOB_NETWORK = {
-    "ssid": "Jacob-iPhone-X",
-    "psk": "jacoblovesgabi",
-    "id_str": "JacobNetwork"
-}
-
-BAPTISTELLA_NETWORK = {
-    "ssid": "baptistella",
-    "psk": "gabiswake",
-    "key_mgmt": "WPA-PSK", # no quotes
-    "id_str": "BaptistellaNetwork"
-}
 
 
 def write_network(network):
@@ -52,7 +26,11 @@ def write_network(network):
     contents.append("\n")
     contents.append("network={\n")
     for prop in network:
-        contents.append("   {prop}=\"{val}\"\n".format(prop=prop, val=network[prop]))
+        # if for adding quotes around value
+        if prop in ('ssid', 'psk', 'id_str'):
+            contents.append("   {prop}=\"{val}\"\n".format(prop=prop, val=network[prop]))
+        else:
+            contents.append("   {prop}={val}\n".format(prop=prop, val=network[prop]))
     contents.append("\n")
     contents.append("}")
     contents.append("\n")
@@ -71,15 +49,12 @@ def is_connected():
 
 def check_network_config():
     """Check wpa_supplicant.conf has at least one network configured."""
-    config = subprocess.check_output(['sudo', 'cat', WPA_CONF_PATH]).decode('utf-8')
-    
-    if not 'IntouchGuestWifi' in config:
-        write_network(INTOUCH_GUEST_NETWORK)
-    if not 'JacobNetwork' in config:
-        write_network(JACOB_NETWORK)
-    if not 'BaptistellaNetwork' in config:
-        write_network(BAPTISTELLA_NETWORK)
+    config = subprocess.check_output(['sudo', 'cat', WPA_FILE_PATH]).decode('utf-8')
 
+    for item in wifi_config:
+        if 'id_str' in item and not item['id_str'] in config:
+            write_network(item)
+            
 
 def connect():
     os.system("sudo wpa_cli -i wlan0 reconfigure")
@@ -92,20 +67,31 @@ def find_ip():
     os.system("ifconfig wlan0 > /tmp/ipaddr.txt")
     with open('/tmp/ipaddr.txt', 'r+') as file:
         contents = file.readlines()
-        print(contents)
+        # print(contents)
         for item in contents:
-            if item.strip('\t').startswith('inet '):
-                return item.strip().split(' ')[1]
+            if item.strip().startswith('inet '):
+                ip = item.strip().split(' ')[1]
+                if ip.startswith('addr'):
+                    return ip.split(':')[1]
+                return ip
+            
     return ""
     
 
 def send_ip():
-    os.system("curl -X POST -H \"Content-Type: application/json\" -d '{\"value1\":\"{ipaddr}\",\"value2\":\"Wifi is connected.\"' https://maker.ifttt.com/trigger/SendMixologistIPAddress/with/key/pEei3L_T0sbAiAXkrMMEUUGyKshTnolB_qcU0mp5DS9".format(ipaddr=find_ip()))
+    """ Send IP via web """
+    ip = find_ip()
+    print("IP Address: {}".format(ip))
+    if len(ip) < 1:
+        return
+    # add your own endpoint to call
+    
 
+def adjust_volume():
+    os.system("amixer set PCM 93%")
 
 def startup_mixologist():
     os.system("cd /home/pi/")
-    os.system("amixer set PCM 93%")
     # source /home/pi/env/bin/activate
     # python -m assistant-sdk-python.google-assistant-sdk.googlesamples.rpi
     subprocess.run(['source', '/home/pi/env/bin/activate', '&&', 'python','-m', 'assistant-sdk-python.google-assistant-sdk.googlesamples.rpi'])
@@ -117,14 +103,30 @@ def main():
         startup_wifi()
         check_network_config()
         connect()
-        send_ip()
-    startup_mixologist()
+        # wait for network connection
+        for i in range(100):
+            if is_connected():
+                send_ip()
+                adjust_volume()
+                startup_mixologist()
+                return
+            else:
+                time.sleep(1) # sleep for one second
+    else:
+        startup_mixologist()
 
 
 if __name__ == "__main__":
     try:
-        if 'test' in sys.argv:
-            write_network(INTOUCH_GUEST_NETWORK)
+        if 'wifi' in sys.argv:
+            startup_wifi()
+            check_network_config()
+            connect()
+        elif 'ip' in sys.argv:
+            print("IP Address: {}".format(find_ip()))
+        elif 'sound' in sys.argv:
+            print("Adjusting volume")
+            adjust_volume()
         else:
             main()
     except:  # pylint: disable=bare-except
